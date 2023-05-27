@@ -1,21 +1,8 @@
 from typing import Any, Callable, List, Tuple, TypeVar
-from cachetools import cached
-from cachetools.keys import hashkey
 
 State = TypeVar("State")
 Move = TypeVar("Move")
 
-def key_hash(    state: Any,
-    get_possible_moves: Callable[[State], List[Move]],
-    make_move: Callable[[State, Move, bool], State],
-    is_game_over: Callable[[State], bool],
-    evaluate_board: Callable[[State], float],
-    depth: int,
-    is_maximizing_player: bool,
-    alpha: float = float("-inf"),
-    beta: float = float("inf") ):
-    return hashkey(str(state)+str(alpha)+str(beta))
-@cached(    cache={},    key=key_hash)
 def minimax(
     state: Any,
     get_possible_moves: Callable[[State], List[Move]],
