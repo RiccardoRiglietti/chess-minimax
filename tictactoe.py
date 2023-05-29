@@ -2,7 +2,7 @@ import random
 from typing import List, Tuple
 from minimax import minimax
 from tqdm import tqdm
-
+from functools import lru_cache
 
 # Function to print the Tic-Tac-Toe board
 def print_board(board: List[List[str]]) -> None:
@@ -60,11 +60,15 @@ def get_possible_moves(board: List[List[str]]) -> List[Tuple[int, int]]:
 # Function to make a move
 def make_move(
     board: List[List[str]], move: Tuple[int, int], is_maximizing: bool
-) -> List[List[str]]:
-    new_board = [row[:] for row in board]
-    new_board[move[0]][move[1]] = "X" if is_maximizing else "O"
-    return new_board
+) -> None:
+   board[move[0]][move[1]] = "X" if is_maximizing else "O"
+   return None
 
+def undo_move(
+    board: List[List[str]], move: Tuple[int, int], is_maximizing: bool
+) -> None:
+    board[move[0]][move[1]] = " "
+    return None
 
 # Function to check if a player has won
 def is_winner(board: List[List[str]], player: str) -> bool:
@@ -104,18 +108,19 @@ def test_minimax() -> None:
                     board,
                     get_possible_moves,
                     make_move,
+                    undo_move,
                     is_game_over,
                     evaluate_board,
                     9,
                     True,
                 )
-                board = make_move(board, move, True)
+                make_move(board, move, True)
                 player = "O"
             else:
                 # Random opponent's turn
                 moves = get_possible_moves(board)
                 move = random.choice(moves)
-                board = make_move(board, move, False)
+                make_move(board, move, False)
                 player = "X"
 
         if is_winner(board, "X"):
