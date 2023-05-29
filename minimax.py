@@ -4,9 +4,9 @@ State = TypeVar("State")
 Move = TypeVar("Move")
 
 def minimax(
-    state: Any,
+    state: State,
     get_possible_moves: Callable[[State], List[Move]],
-    make_move: Callable[[State, Move, bool], State],
+    make_move: Callable[[State, Move, bool], None], # add undo move to keep compatibility with tictactoe
     is_game_over: Callable[[State], bool],
     evaluate_board: Callable[[State], float],
     depth: int,
@@ -20,10 +20,11 @@ def minimax(
     if is_maximizing_player:
         max_eval = float("-inf")
         best_move = None
+        #sorted_moves = sorted(get_possible_moves(state), key=lambda move: evaluate_board(make_move(state, move, is_maximizing_player)))
         for move in get_possible_moves(state):
-            new_state = make_move(state, move, is_maximizing_player)
+            make_move(state, move, is_maximizing_player)
             evaluation, _ = minimax(
-                new_state,
+                state,
                 get_possible_moves,
                 make_move,
                 is_game_over,
@@ -33,6 +34,7 @@ def minimax(
                 alpha,
                 beta,
             )
+            state.pop()
             if evaluation > max_eval:
                 max_eval = evaluation
                 best_move = move
@@ -43,10 +45,12 @@ def minimax(
     else:
         min_eval = float("inf")
         best_move = None
+        #sorted_moves = sorted(get_possible_moves(state), key=lambda move: -evaluate_board(make_move(state, move, is_maximizing_player)))
+
         for move in get_possible_moves(state):
-            new_state = make_move(state, move, is_maximizing_player)
+            make_move(state, move, is_maximizing_player)
             evaluation, _ = minimax(
-                new_state,
+                state,
                 get_possible_moves,
                 make_move,
                 is_game_over,
@@ -56,6 +60,7 @@ def minimax(
                 alpha,
                 beta,
             )
+            state.pop()
             if evaluation < min_eval:
                 min_eval = evaluation
                 best_move = move
