@@ -7,6 +7,7 @@ def minimax(
     state: State,
     get_possible_moves: Callable[[State], List[Move]],
     make_move: Callable[[State, Move, bool], None], # add undo move to keep compatibility with tictactoe
+    undo_move: Callable[[State, Move, bool], None],
     is_game_over: Callable[[State], bool],
     evaluate_board: Callable[[State], float],
     depth: int,
@@ -27,6 +28,7 @@ def minimax(
                 state,
                 get_possible_moves,
                 make_move,
+                undo_move,
                 is_game_over,
                 evaluate_board,
                 depth - 1,
@@ -34,7 +36,7 @@ def minimax(
                 alpha,
                 beta,
             )
-            state.pop()
+            undo_move(state, move, is_maximizing_player)
             if evaluation > max_eval:
                 max_eval = evaluation
                 best_move = move
@@ -53,6 +55,7 @@ def minimax(
                 state,
                 get_possible_moves,
                 make_move,
+                undo_move,
                 is_game_over,
                 evaluate_board,
                 depth - 1,
@@ -60,7 +63,7 @@ def minimax(
                 alpha,
                 beta,
             )
-            state.pop()
+            undo_move(state, move, is_maximizing_player)
             if evaluation < min_eval:
                 min_eval = evaluation
                 best_move = move
