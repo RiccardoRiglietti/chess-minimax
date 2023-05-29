@@ -10,15 +10,19 @@ def get_possible_moves(state: chess.Board) -> List[chess.Move]:
 
 def make_move(
     state: chess.Board, move: chess.Move, is_maximizing_player: bool
-) -> chess.Board:
-    new_state = state.copy()
-    new_state.push(move)
-    return new_state
+) -> None:
+    #new_state = state.copy()
+    state.push(move)
+    return None
+    #return new_state
 
-
+def undo_move(state: chess.Board, move: chess.Move, is_maximizing_player: bool) -> None:
+    state.pop()
+    
 def is_game_over(state: chess.Board) -> bool:
     return state.is_game_over()
 
+#@cached
 def evaluate_board(state: chess.Board) -> float:
     # Check if the game is over
     if state.is_game_over():
@@ -88,22 +92,23 @@ def play_game_random_opponent(depth) -> float:
                 state,
                 get_possible_moves,
                 make_move,
+                undo_move,
                 is_game_over,
                 evaluate_board,
                 depth=depth,
                 is_maximizing_player=True,
             )
-            display_board(state)
-            print(eval)
+            #display_board(state)
+            #print(eval)
         else:
             move = random_opponent_move(state)
         state.push(move)
         is_maximizing_player = not is_maximizing_player
 
     result = state.result()
-    print(result)
-    print("Final board:")
-    display_board(state)
+    #print(result)
+    #print("Final board:")
+    #display_board(state)
     if result == "1-0":
         return 1.0  # AI wins
     elif result == "0-1":
@@ -185,7 +190,7 @@ def play_game(depth) -> float:
                 user_move = parse_user_input(user_move_str)
             move = user_move
         else:
-            move = minimax(state, get_possible_moves, make_move, is_game_over, evaluate_board, depth=depth, is_maximizing_player=False)[1]
+            move = minimax(state, get_possible_moves, make_move, undo_move, is_game_over, evaluate_board, depth=depth, is_maximizing_player=False)[1]
         state.push(move)
         is_human_turn = not is_human_turn
 
