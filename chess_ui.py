@@ -108,7 +108,7 @@ class ChessUI(tk.Tk):
         file = event.x // SQUARE_SIZE
         square = chess.square(file, 7 - rank)
 
-        if not self.selected_piece:
+        if self.selected_piece is None:
             piece = self.board.piece_at(square)
             if piece and piece.color == self.board.turn:
                 self.selected_piece = square
