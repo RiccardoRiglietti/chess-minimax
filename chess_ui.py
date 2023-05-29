@@ -13,8 +13,9 @@ SQUARE_SIZE = BOARD_SIZE // 8
 
 # Create the chessboard GUI
 class ChessUI(tk.Tk):
-    def __init__(self):
+    def __init__(self, depth=3):
         super().__init__()
+        self.depth = depth
         self.title("Chess Game")
         self.geometry(f"{BOARD_SIZE}x{BOARD_SIZE}")
 
@@ -84,12 +85,14 @@ class ChessUI(tk.Tk):
                 if piece:
                     image = self.piece_images[piece.piece_type][piece.color]
                     self.canvas.create_image(x1, y1, anchor=tk.NW, image=image)
-
+                #print(f"Chosen piece square {self.selected_piece}, check with {square}")
                 if self.selected_piece == square:
+                    print("MATCH", self.selected_piece, square)
                     self.canvas.create_rectangle(x1, y1, x2, y2, outline="blue", width=4)
                     moves = self.board.legal_moves
                     for move in moves:
                         if move.from_square == self.selected_piece:
+                            print(f"FROM possibility {move.from_square}, selected {self.selected_piece}")
                             target_square = move.to_square
                             target_rank = 7 - chess.square_rank(target_square)
                             target_file = chess.square_file(target_square)
@@ -107,16 +110,20 @@ class ChessUI(tk.Tk):
         rank = event.y // SQUARE_SIZE
         file = event.x // SQUARE_SIZE
         square = chess.square(file, 7 - rank)
-
+        print(self.board.legal_moves)
         if self.selected_piece is None:
             piece = self.board.piece_at(square)
-            if piece and piece.color == self.board.turn:
+            if piece.color == self.board.turn:
                 self.selected_piece = square
+                print("selecting", square)
         else:
             if self.selected_piece == square:
                 self.selected_piece = None
+                print("deselecting")
             else:
+                print("try making move")
                 move = chess.Move(self.selected_piece, square)
+                #print(move, list(self.board.legal_moves))
                 if move in self.board.legal_moves:
                     self.board.push(move)
                     playsound("sounds/move_sound.wav", block=False)
@@ -142,7 +149,7 @@ class ChessUI(tk.Tk):
                 chess_game.make_move,
                 chess_game.is_game_over,
                 chess_game.evaluate_board,
-                depth=3,
+                depth=self.depth,
                 is_maximizing_player=False,
             )
             self.board.push(move)
@@ -150,4 +157,4 @@ class ChessUI(tk.Tk):
 
 # Start the chess game
 if __name__ == "__main__":
-    ChessUI().mainloop()
+    ChessUI(depth=4).mainloop()
