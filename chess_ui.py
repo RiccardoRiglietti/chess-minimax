@@ -113,7 +113,7 @@ class ChessUI(tk.Tk):
         print(self.board.legal_moves)
         if self.selected_piece is None:
             piece = self.board.piece_at(square)
-            if piece.color == self.board.turn:
+            if (piece is not None) and piece.color == self.board.turn:
                 self.selected_piece = square
                 print("selecting", square)
         else:
@@ -122,9 +122,18 @@ class ChessUI(tk.Tk):
                 print("deselecting")
             else:
                 print("try making move")
-                move = chess.Move(self.selected_piece, square)
-                #print(move, list(self.board.legal_moves))
-                if move in self.board.legal_moves:
+                if self.board.is_legal(chess.Move(self.selected_piece, square, promotion=chess.QUEEN)):
+                    move = chess.Move(self.selected_piece, square, promotion=chess.QUEEN)
+                else:
+                    move = chess.Move(self.selected_piece, square)
+                print(move, type(move), list(self.board.legal_moves))
+                if self.board.is_legal(move):#move in self.board.legal_moves:
+                    # print("UCI: ", move.uci() + "q")
+                    # print("FROM UCI: ", chess.Move.from_uci(move.uci() + "q"))
+                    # if chess.Move.from_uci(move.uci() + "q") in self.board.legal_moves:
+                    #     print("IS PROMOTION")
+                    #     self.board.push(chess.Move.from_uci(move.uci() + "q"))
+                    # else:
                     self.board.push(move)
                     playsound("sounds/move_sound.wav", block=False)
                     self.selected_piece = None
@@ -147,14 +156,15 @@ class ChessUI(tk.Tk):
                 self.board,
                 chess_game.get_possible_moves,
                 chess_game.make_move,
+                chess_game.undo_move,
                 chess_game.is_game_over,
                 chess_game.evaluate_board,
                 depth=self.depth,
-                is_maximizing_player=False,
+                is_maximizing_player=True, # False
             )
             self.board.push(move)
             playsound("sounds/move_sound.wav", block=False)
 
 # Start the chess game
 if __name__ == "__main__":
-    ChessUI(depth=4).mainloop()
+    ChessUI(depth=3).mainloop()
