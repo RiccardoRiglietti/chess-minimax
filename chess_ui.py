@@ -160,7 +160,7 @@ class ChessUI(tk.Tk):
                 chess_game.is_game_over,
                 chess_game.evaluate_board,
                 depth=self.depth,
-                is_maximizing_player=True, # False
+                is_maximizing_player=False, # cpu is black
             )
             self.board.push(move)
             playsound("sounds/move_sound.wav", block=False)
