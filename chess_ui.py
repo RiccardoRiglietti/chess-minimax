@@ -6,6 +6,8 @@ from minimax import minimax
 import chess_game
 import time
 from playsound import playsound
+from dialog_ui import ask_multiple_choice_question
+from tkinter import messagebox
 
 # Constants
 BOARD_SIZE = 800
@@ -15,6 +17,7 @@ SQUARE_SIZE = BOARD_SIZE // 8
 class ChessUI(tk.Tk):
     def __init__(self, depth=3):
         super().__init__()
+        #self.root = tk.Tk()
         self.depth = depth
         self.title("Chess Game")
         self.geometry(f"{BOARD_SIZE}x{BOARD_SIZE}")
@@ -49,6 +52,13 @@ class ChessUI(tk.Tk):
                 chess.WHITE: self.load_image("images/king_white.png"),
                 chess.BLACK: self.load_image("images/king_black.png"),
             },
+        }
+        
+        self.initial_to_piece = {
+            "Q" : chess.QUEEN,
+            "R" : chess.ROOK,
+            "N" : chess.KNIGHT,
+            "B" : chess.BISHOP
         }
 
         # Initialize the chessboard
@@ -123,7 +133,21 @@ class ChessUI(tk.Tk):
             else:
                 print("try making move")
                 if self.board.is_legal(chess.Move(self.selected_piece, square, promotion=chess.QUEEN)):
-                    move = chess.Move(self.selected_piece, square, promotion=chess.QUEEN)
+
+                    piece = messagebox.askquestion("Promotion to QUEEN", "YES/NO", icon='warning')
+                    if piece.lower().startswith("y"):
+                        target = "Q"
+                    else:
+                        piece = messagebox.askquestion("Promotion to KNIGHT", "YES/NO", icon='warning')
+                        if piece.lower().startswith("y"):
+                            target = "N"
+                        else:
+                            piece = messagebox.askquestion("Promotion to ROOK", "YES/NO", icon='warning')
+                            if piece.lower().startswith("y"):
+                                target = "R"
+                            else:
+                                target = "B"
+                    move = chess.Move(self.selected_piece, square, promotion=self.initial_to_piece[target])
                 else:
                     move = chess.Move(self.selected_piece, square)
                 print(move, type(move), list(self.board.legal_moves))
@@ -160,7 +184,7 @@ class ChessUI(tk.Tk):
                 chess_game.is_game_over,
                 chess_game.evaluate_board,
                 depth=self.depth,
-                is_maximizing_player=False, # cpu is black
+                is_maximizing_player=True, # False
             )
             self.board.push(move)
             playsound("sounds/move_sound.wav", block=False)
